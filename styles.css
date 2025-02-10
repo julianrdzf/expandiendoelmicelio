@@ -27,6 +27,7 @@ body {
 
 header {
     display: flex;
+    padding: 0px 0px 0px 10px;
     align-items: center; /* Alinear verticalmente */
     justify-content: space-between; /* Espaciar elementos */    
     background: rgba(0, 0, 0, 0.7); /* Fondo semitransparente */
@@ -40,11 +41,11 @@ h1 {
 
 nav {
     background: none;    
-    margin-top: 10px;
+    margin-top: 0px;
 }
 
 .logo{
-    margin-left: 30px;    
+    margin-left: 0px;    
     max-width: 200px; /* Tamaño máximo */
     height: auto;
 }
@@ -58,6 +59,37 @@ nav {
     cursor: pointer;
 }
 
+@media (max-width: 768px) {
+    header {
+        display: flex;
+        align-items: center;  /* Centra verticalmente */
+        justify-content: space-between; /* Espacia logo y botón */
+        padding: 10px 20px;
+        position: relative; /* Necesario si usamos position absolute en el botón */
+    }
+
+    .menu-toggle {
+        display: block;
+        background: #8f8f8f;
+        border-radius: 3px;
+        color: rgb(0, 0, 0);        
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        border: none;
+        cursor: pointer;
+        position: absolute;
+        right: 20px; /* Lo alinea a la derecha */
+        top: 50%; 
+        transform: translateY(-50%); /* Lo centra verticalmente */
+        text-align: center;
+        width: 30px;  /* Asegura un ancho fijo */
+        height: 30px; /* Asegura una altura fija */
+    }
+}
+
+
 .nav-menu {
     display: flex;
     background: none;
@@ -66,6 +98,7 @@ nav {
     display: flex;
     justify-content: center;
     gap: 10px;
+    transition: transform 0.3s ease-in-out;
 }
 
 .nav-menu li {
@@ -103,7 +136,7 @@ nav {
         flex-direction: column;
         background: #222;
         position: absolute;
-        top: 60px;
+        top: 54px;
         width: 100%;
         left: 0;
         padding: 10px 0;
