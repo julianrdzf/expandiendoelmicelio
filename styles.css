@@ -54,6 +54,7 @@ nav {
     background: none;
     border: none;    
     font-size: 14px;
+    color: rgb(0, 0, 0);
     cursor: pointer;
 }
 
@@ -91,6 +92,9 @@ nav {
         display: block;
         background: #8f8f8f;
         border-radius: 3px;
+        color: rgb(0, 0, 0);
+        width: 30px;  /* Asegura un ancho fijo */
+        height: 30px; /* Asegura una altura fija */
     }
 
     .nav-menu {
