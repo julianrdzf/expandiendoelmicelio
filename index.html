@@ -1,16 +1,127 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <link rel="icon" href="images/favicon.png" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expandiendo el Micelio</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="images/favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <img src="images/logo_texto_chico_blanco_sin_fondo.png" alt="Logo de Expandiendo el Micelio" class="logo">
-        <p class="message">Próximamente...</p>
+
+    <div class="hero">
+        <header>
+            <img src="images/logo_texto_chico_blanco_sin_fondo.png" alt="expandiendo el micelio" class="logo">
+            <!--<h1>Expandiendo el Micelio</h1>-->
+            <nav>
+                <button class="menu-toggle">☰</button>
+                <ul class="nav-menu">
+                    <li><a href="#inicio">Inicio</a></li>
+                    <li><a href="#sobre-nosotros">Sobre Nosotros</a></li>
+                    <li><a href="#actividades">Actividades</a></li>
+                    <li><a href="#galeria">Galería</a></li>
+                    <!--<li><a href="#blog">Blog</a></li>-->
+                    <li><a href="#contacto">Contacto</a></li>
+                </ul>
+            </nav>
+    
+            <nav>
+                <!-- a futuro puede ir inicio de sesión y registro-->
+            </nav>
+        </header>        
+        
+        <section id="inicio" class="section">
+            <h2>Exploremos la</h2>            
+            <img src="images/funga.png" alt="funga" class="imagen-funga">
+            <!--<p>Exploramos y divulgamos acerca del fascinante mundo de los hongos.</p>-->
+        </section>
     </div>
+    
+    
+    <section id="sobre-nosotros" class="section">
+        <h2>Sobre Nosotros</h2>
+        <p>Somos un grupo de exploración y divulgación científica que investiga la funga de Uruguay y sus alrededores.</p>
+        <p>Nos apasiona el reino fungi el cual nos motiva a conocer su diversidad y sus características.</p>
+    </section>
+    
+    <section id="actividades" class="section">
+        <h2>Actividades</h2>
+        <div class="actividades-container">
+            <div class="tarjeta">
+                <h3>Exploraciones</h3>
+                <img src="images/exploracion.jpg" alt="Exploraciones">
+            </div>
+            <div class="tarjeta">
+                <h3>Micosenderos</h3>
+                <img src="images/micosenderos.jpg" alt="Micosenderos guiados">
+            </div>
+            <div class="tarjeta">
+                <h3>Talleres</h3>
+                <img src="images/talleres.jpg" alt="Talleres sobre hongos">
+            </div>
+        </div>
+    </section> 
+      
+    <section id="galeria">
+        <h2>Galería</h2>
+        <div class="galeria-container"></div>
+    </section>
+    
+    <!--
+    <section id="blog" class="section">
+        <h2>Blog / Noticias</h2>
+        <p>Artículos sobre hallazgos y datos científicos.</p>
+    </section>
+    -->
+    
+    <section id="contacto" class="section">
+        <h2>Contacto</h2>
+        <p>Encuéntranos en Instagram:</p>
+        <a href="https://www.instagram.com/expandiendoelmicelio" target="_blank" class="instagram-link">
+            <i class="fa-brands fa-instagram"></i> expandiendoelmicelio
+        </a>
+    </section>
+    
+    <footer>
+        <p>&copy; 2025 Expandiendo el Micelio. Todos los derechos reservados.</p>
+    </footer>
+
+    <button id="backToTop" class="back-to-top">&gt;</button>
+
+    <script>
+        document.querySelector(".menu-toggle").addEventListener("click", function() {
+            document.querySelector(".nav-menu").classList.toggle("show");
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+        const backToTopButton = document.getElementById("backToTop");
+
+        // Mostrar u ocultar el botón según la posición de la página
+        window.addEventListener("scroll", function () {
+            if (window.scrollY > 200) {
+                backToTopButton.style.display = "flex";
+            } else {
+                backToTopButton.style.display = "none";
+            }
+        });
+
+        // Acción al hacer clic en el botón
+        backToTopButton.addEventListener("click", function () {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const galeriaContainer = document.querySelector(".galeria-container");
+
+        for (let i = 1; i <= 16; i++) { // Ajusta el número según la cantidad de imágenes que tengas
+            const img = document.createElement("img");
+            img.src = `images/galeria/galeria_${i}.jpg`;
+            img.alt = `Galería ${i}`;
+            galeriaContainer.appendChild(img);
+        }
+    });
+    </script>
 </body>
 </html>
