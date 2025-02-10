@@ -86,6 +86,7 @@ nav {
         text-align: center;
         width: 30px;  /* Asegura un ancho fijo */
         height: 30px; /* Asegura una altura fija */
+        padding: 0;        
     }
 }
 
@@ -120,23 +121,14 @@ nav {
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
-    .menu-toggle {
-        display: block;
-        background: #8f8f8f;
-        border-radius: 3px;
-        color: rgb(0, 0, 0);
-        text-align: center;
-        width: 30px;  /* Asegura un ancho fijo */
-        height: 30px; /* Asegura una altura fija */
-    }
+@media (max-width: 768px) {    
 
     .nav-menu {
         display: none;
         flex-direction: column;
         background: #222;
         position: absolute;
-        top: 54px;
+        top: 50px;
         width: 100%;
         left: 0;
         padding: 10px 0;
