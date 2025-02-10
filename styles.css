@@ -93,6 +93,7 @@ nav {
         background: #8f8f8f;
         border-radius: 3px;
         color: rgb(0, 0, 0);
+        text-align: center;
         width: 30px;  /* Asegura un ancho fijo */
         height: 30px; /* Asegura una altura fija */
     }
