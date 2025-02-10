@@ -1,53 +1,260 @@
-/* Estilos globales */
-body, html {
-    height: 100%;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: black; /* Fondo negro */
-    color: white; /* Texto blanco */
-    font-family: Arial, sans-serif;
+html {
+    scroll-behavior: smooth;
+    width: 100%;
+    overflow-x: hidden;
 }
 
-/* Contenedor principal */
-.container {
+body {
+    background-color: black;
+    color: white;
+    font-family: Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
     text-align: center;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.hero {
+    background: url('images/fondo_header_sec_1.jpeg') no-repeat center center;
+    background-size: cover;    
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100vw;
+    
+}
+
+header {
+    display: flex;
+    align-items: center; /* Alinear verticalmente */
+    justify-content: space-between; /* Espaciar elementos */    
+    background: rgba(0, 0, 0, 0.7); /* Fondo semitransparente */
+    backdrop-filter: blur(10px); /* Aplica desenfoque gaussiano */
+}
+
+h1 {
+    margin: 0;
+    font-size: 14px;
+}
+
+nav {
+    background: none;    
+    margin-top: 10px;
+}
+
+.logo{
+    margin-left: 30px;    
+    max-width: 200px; /* Tamaño máximo */
+    height: auto;
+}
+
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;    
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.nav-menu {
+    display: flex;
+    background: none;
+    list-style: none;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.nav-menu li {
+    display: inline;
+}
+
+.nav-menu li a {
+    display: inline-block;
+    padding: 10px 15px;
+    color: rgb(200, 200, 200);
+    text-decoration: none;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.nav-menu li a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    border-radius: 5px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .menu-toggle {
+        display: block;
+        background: #8f8f8f;
+        border-radius: 3px;
+    }
+
+    .nav-menu {
+        display: none;
+        flex-direction: column;
+        background: #222;
+        position: absolute;
+        top: 60px;
+        width: 100%;
+        left: 0;
+        padding: 10px 0;
+    }
+
+    .nav-menu.show {
+        display: flex;
+    }
+
+    .nav-menu li {
+        display: block;
+        margin: 0px 0;
+    }
+}
+
+.section {
+    padding: 60px 20px;    
+}
+
+#inicio {
+    text-align: center;
+    text-shadow: rgb(0, 0, 0) 1px 1px 5px;
+    background-color: rgba(0, 0, 0, 0.5);
+
+}
+
+.imagen-funga{
+    
+    width: 80vw;
+    max-width: 500px; /* Tamaño máximo */
+    height: auto;
+    transition: transform 0.3s ease-in-out;
+}
+
+.imagen-funga:hover {
+    transform: scale(1.05);
+}
+
+.actividades-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
     padding: 20px;
 }
 
-/* Logo */
-.logo {
-    width: 200%; /* Ajusta el tamaño del logo */
-    max-width: 600px; /* Tamaño máximo */
-    margin-bottom: 20px;
+.tarjeta {
+    background-color: rgba(255, 255, 255, 0.1); /* Fondo semi-transparente */
+    border-radius: 15px; /* Bordes redondeados */
+    overflow: hidden;
+    text-align: center;
+    width: 300px; /* Tamaño fijo */
+    max-width: 100%;
+    transition: transform 0.3s ease-in-out;
 }
 
-/* Mensaje */
-.message {
-    font-size: 24px;
+.tarjeta:hover {
+    transform: scale(1.05);
+}
+
+.tarjeta h3 {
+    background-color: rgb(101, 101, 101);
+    color: black;
+    margin: 0;
+    padding: 15px;
+    font-size: 1.2em;
+}
+
+.tarjeta img {
+    width: 100%;
+    display: block;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+}
+
+/* 📱 Responsive: En móviles, las tarjetas se apilan */
+@media (max-width: 768px) {
+    .actividades-container {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+.instagram-link {    
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: white;
+    font-size: 1.2em;
     font-weight: bold;
 }
 
-/* Media Query para dispositivos móviles */
+.instagram-icon {
+    width: 30px;
+    height: 30px;
+}
+
+.instagram-link i {
+    font-size: 1.5em;
+}
+
+.galeria-container {
+    display: flex;
+    flex-wrap: wrap; /* Permite que las imágenes pasen a la siguiente línea si no caben */
+    justify-content: center; /* Centra las imágenes en la fila */
+    gap: 30px; /* Espacio fijo entre imágenes */
+    padding: 20px;
+}
+
+.galeria-container img {
+    width: calc(25% - 20px); /* Cada imagen ocupa 25% del ancho menos el margen */
+    max-width: 300px; /* Limita el tamaño máximo */
+    border-radius: 10px;
+    object-fit: cover;
+    transition: transform 0.3s ease-in-out;
+}
+
+.galeria-container img:hover {
+    transform: scale(1.02);
+}
+
+/* 📱 En pantallas pequeñas (menos de 768px), solo 1 imagen por fila */
 @media (max-width: 768px) {
-    .logo {
-        width: 80%; /* Hacer el logo más pequeño en pantallas pequeñas */
-        max-width: 300px; /* Tamaño máximo más pequeño */
-    }
-
-    .message {
-        font-size: 20px; /* Reducir el tamaño de la fuente en móviles */
+    .galeria-container img {
+        width: calc(100% - 40px); /* Una sola imagen por fila con margen */
     }
 }
 
-@media (max-width: 480px) {
-    .logo {
-        width: 90%; /* Hacer el logo aún más pequeño en pantallas extra pequeñas */
-        max-width: 250px; /* Tamaño máximo aún más pequeño */
-    }
 
-    .message {
-        font-size: 18px; /* Hacer el texto más pequeño */
-    }
+footer {
+    background-color: #222;
+    padding: 10px;
+    position: relative;
+    bottom: 0;
+    width: 100%;
 }
+
+.back-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    background-color: rgb(58, 58, 58);
+    color: rgb(0, 0, 0);
+    font-size: 24px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    display: none; /* Oculto por defecto */
+    justify-content: center;
+    align-items: center;
+    transform: rotate(-90deg); /* Rotar el símbolo ">" hacia arriba */
+}
+
+.back-to-top:hover {
+    background-color: rgb(67, 67, 67);
+}
+
