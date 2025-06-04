@@ -1,0 +1,12 @@
+name,scientificName,image,Color_1,Color_2,Color_3
+Champiñón de campo,Agaricus campestris,agaricus_campestris.jpeg,94.15 -1.9 4.22,78.53 21.04 8.2; 28.29 13.27 5.37,94.23 -1.56 4.34
+Matamoscas,Amanita muscaria,amanita_muscaria.jpeg,47.01 58.86 36.37,100 0.01 -0.01,95.35 -1.39 6.01
+Hongo de la muerte,Amanita phalloides,amanita_phalloides.jpeg,75.66 -25.97 73.35,100 0.01 -0.01,95.35 -1.39 6.01
+Hongo de eucaliptus,Gymnopilus junonius,gymnopilus_junonius.jpeg,60.95 33.47 58.29,70.15 16.21 73.39,64.66 25.39 67.74
+Russula sardonia,Russula sardonia,russula_sardonia.jpeg,30.97 43.8 6.91,95.92 0.15 1.67,97.63 -0.03 2.14
+Rey del monte / porcini,Boletus edulis,boletus_edulis.jpeg,35.24 20.4 27.22,93.43 0.72 8.95,88.76 0.71 21.04
+Boletinellus rompelli,Boletinellus rompelli,boletinellus_rompelli.jpeg,35.86 14.31 19.99,85.46 -15.9 81.57,38.87 14.84 43.45
+Delicioso,Lactarius deliciosus,lactarius_deliciosus.jpeg,69.66 39.24 51.63,69.66 39.24 51.63,69.66 39.24 51.63
+Delicioso pálido,Lactarius quieticolor,lactarius_quieticolor.jpeg,80.01 21.94 30.36,80.01 21.94 30.36,80.01 21.94 30.36
+Suilo granulado,Suillus granulatus,suillus_granulatus.jpeg,80.42 -1 63.21; 51.88 12.29 57.88,93.4 -7.73 24.87,92.31 -11.11 41.08
+Suilo anillado,Suillus luteous,suillus_luteous.jpeg,51.88 12.29 57.88,93.4 -7.73 24.87,92.31 -11.11 41.08 

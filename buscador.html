@@ -182,6 +182,80 @@
             color: #666;
             font-size: 0.9rem;
         }
+
+        .similarity-bar {
+            background: #f0f0f0;
+            border-radius: 4px;
+            height: 20px;
+            position: relative;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .similarity-fill {
+            background: #4a6741;
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .similarity-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            text-shadow: 0 0 2px rgba(0,0,0,0.5);
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .results-grid {
+            transition: opacity 0.15s ease-in-out;
+        }
+
+        .fungi-card {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .similarity-fill {
+            transition: width 0.3s ease-in-out;
+        }
+
+        .image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 0.9rem;
+            backdrop-filter: blur(2px);
+        }
+
+        .image-overlay span {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 8px 16px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .fungi-image[src$="placeholder.png"] + .image-overlay {
+            display: flex;
+        }
     </style>
 </head>
 <body>
@@ -243,15 +317,250 @@
     <button id="backToTop" class="back-to-top">&gt;</button>
 
     <script>
-        // Menú móvil
-        document.querySelector(".menu-toggle").addEventListener("click", function() {
-            document.querySelector(".nav-menu").classList.toggle("show");
-        });
+        // Funciones de conversión de color
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
 
-        // Botón volver arriba
-        document.addEventListener("DOMContentLoaded", function () {
+        function rgbToXyz(rgb) {
+            let r = rgb.r / 255;
+            let g = rgb.g / 255;
+            let b = rgb.b / 255;
+
+            r = r > 0.04045 ? Math.pow((r + 0.055) / 1.055, 2.4) : r / 12.92;
+            g = g > 0.04045 ? Math.pow((g + 0.055) / 1.055, 2.4) : g / 12.92;
+            b = b > 0.04045 ? Math.pow((b + 0.055) / 1.055, 2.4) : b / 12.92;
+
+            r *= 100;
+            g *= 100;
+            b *= 100;
+
+            const x = r * 0.4124 + g * 0.3576 + b * 0.1805;
+            const y = r * 0.2126 + g * 0.7152 + b * 0.0722;
+            const z = r * 0.0193 + g * 0.1192 + b * 0.9505;
+
+            return { x, y, z };
+        }
+
+        function xyzToLab(xyz) {
+            const ref = {
+                x: 95.047,
+                y: 100,
+                z: 108.883
+            };
+
+            let x = xyz.x / ref.x;
+            let y = xyz.y / ref.y;
+            let z = xyz.z / ref.z;
+
+            x = x > 0.008856 ? Math.pow(x, 1/3) : (7.787 * x) + 16/116;
+            y = y > 0.008856 ? Math.pow(y, 1/3) : (7.787 * y) + 16/116;
+            z = z > 0.008856 ? Math.pow(z, 1/3) : (7.787 * z) + 16/116;
+
+            const l = (116 * y) - 16;
+            const a = 500 * (x - y);
+            const b = 200 * (y - z);
+
+            return {
+                l: Math.round(l * 100) / 100,
+                a: Math.round(a * 100) / 100,
+                b: Math.round(b * 100) / 100
+            };
+        }
+
+        function hexToLab(hex) {
+            const rgb = hexToRgb(hex);
+            const xyz = rgbToXyz(rgb);
+            return xyzToLab(xyz);
+        }
+
+        // Función para calcular la distancia entre dos colores LAB
+        function deltaE(lab1, lab2) {
+            const deltaL = lab1.l - lab2.l;
+            const deltaA = lab1.a - lab2.a;
+            const deltaB = lab1.b - lab2.b;
+            return Math.sqrt(deltaL * deltaL + deltaA * deltaA + deltaB * deltaB);
+        }
+
+        // Función para parsear valores LAB desde string
+        function parseLabString(labStr) {
+            try {
+                const [l, a, b] = labStr.trim().split(' ').map(Number);
+                if (isNaN(l) || isNaN(a) || isNaN(b)) {
+                    console.error('Invalid LAB values:', labStr);
+                    return null;
+                }
+                return { l, a, b };
+            } catch (error) {
+                console.error('Error parsing LAB string:', labStr, error);
+                return null;
+            }
+        }
+
+        // Cargar datos del CSV
+        let mushroomData = [];
+        
+        async function loadMushroomData() {
+            try {
+                const response = await fetch('data/mushrooms.csv');
+                const csvText = await response.text();
+                console.log('CSV loaded:', csvText);
+                
+                // Manejar diferentes tipos de line endings (CRLF, LF)
+                const rows = csvText.split(/\r?\n/).filter(row => row.trim());
+                console.log('Rows:', rows); // Debug log
+                
+                mushroomData = rows.slice(1).map(row => {
+                    if (!row) return null; // Skip empty rows
+                    const values = row.split(',');
+                    if (values.length < 6) return null; // Skip invalid rows
+                    
+                    const data = {
+                        name: values[0],
+                        scientificName: values[1],
+                        image: values[2],
+                        color1: values[3]?.split(';').map(c => c.trim()).filter(c => c),
+                        color2: values[4]?.split(';').map(c => c.trim()).filter(c => c),
+                        color3: values[5]?.split(';').map(c => c.trim()).filter(c => c)
+                    };
+                    console.log('Processed row:', data); // Debug log
+                    return data;
+                }).filter(item => item !== null); // Remove null entries
+                
+                console.log('Processed mushroom data:', mushroomData);
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        // Función para buscar hongos por color
+        function searchMushroomsByColor(targetColors) {
+            console.log('Searching with colors:', targetColors);
+            const maxDistance = 100;
+            
+            if (!mushroomData || mushroomData.length === 0) {
+                console.error('No mushroom data available');
+                return [];
+            }
+            
+            // Calcular puntuación para cada hongo
+            const scoredMushrooms = mushroomData.map(mushroom => {
+                try {
+                    // Calcular la mejor coincidencia para cada parte
+                    const capMatch = !targetColors.cap || Math.min(...(mushroom.color1?.map(color => {
+                        const labColor = parseLabString(color);
+                        if (!labColor) return maxDistance;
+                        return deltaE(targetColors.cap, labColor);
+                    }) || [maxDistance]));
+
+                    const gillsMatch = !targetColors.gills || Math.min(...(mushroom.color2?.map(color => {
+                        const labColor = parseLabString(color);
+                        if (!labColor) return maxDistance;
+                        return deltaE(targetColors.gills, labColor);
+                    }) || [maxDistance]));
+
+                    const stemMatch = !targetColors.stem || Math.min(...(mushroom.color3?.map(color => {
+                        const labColor = parseLabString(color);
+                        if (!labColor) return maxDistance;
+                        return deltaE(targetColors.stem, labColor);
+                    }) || [maxDistance]));
+
+                    // Calcular puntuación total
+                    const selectedParts = [
+                        targetColors.cap ? capMatch : null,
+                        targetColors.gills ? gillsMatch : null,
+                        targetColors.stem ? stemMatch : null
+                    ].filter(x => x !== null);
+
+                    const averageDistance = selectedParts.reduce((a, b) => a + b, 0) / selectedParts.length;
+                    const similarity = Math.max(0, Math.round((1 - averageDistance / maxDistance) * 100));
+
+                    return {
+                        mushroom,
+                        similarity,
+                        distances: {
+                            cap: capMatch,
+                            gills: gillsMatch,
+                            stem: stemMatch
+                        }
+                    };
+                } catch (error) {
+                    console.error('Error processing mushroom:', mushroom, error);
+                    return null;
+                }
+            }).filter(item => item !== null);
+
+            console.log('Scored mushrooms:', scoredMushrooms);
+
+            // Ordenar por similitud y tomar los 3 mejores resultados
+            const results = scoredMushrooms
+                .sort((a, b) => b.similarity - a.similarity)
+                .slice(0, 3)
+                .filter(result => result.similarity > 0);
+
+            console.log('Final results:', results);
+            return results;
+        }
+
+        // Función para mostrar resultados
+        function displayResults(results) {
+            const resultsGrid = document.querySelector('.results-grid');
+            
+            // Crear el nuevo contenido
+            const newContent = document.createElement('div');
+            newContent.className = 'results-grid';
+            
+            if (results.length === 0) {
+                newContent.innerHTML = '<p>No se encontraron hongos con esos colores.</p>';
+            } else {
+                results.forEach(result => {
+                    const card = document.createElement('div');
+                    card.className = 'fungi-card';
+                    
+                    const similarityBar = `
+                        <div class="similarity-bar">
+                            <div class="similarity-fill" style="width: ${result.similarity}%"></div>
+                            <span class="similarity-text">${result.similarity}% coincidencia</span>
+                        </div>
+                    `;
+
+                    card.innerHTML = `
+                        <img src="images/mushrooms/${result.mushroom.image}" alt="${result.mushroom.name}" class="fungi-image" loading="lazy" onerror="this.src='images/placeholder.png'">
+                        <div class="fungi-info">
+                            <h3>${result.mushroom.name}</h3>
+                            <p><em>${result.mushroom.scientificName}</em></p>
+                            ${similarityBar}
+                        </div>
+                    `;
+                    newContent.appendChild(card);
+                });
+            }
+
+            // Aplicar transición suave
+            resultsGrid.style.opacity = '0';
+            setTimeout(() => {
+                resultsGrid.innerHTML = newContent.innerHTML;
+                resultsGrid.style.opacity = '1';
+            }, 150);
+        }
+
+        // Inicialización y event listeners
+        document.addEventListener("DOMContentLoaded", async function () {
+            // Cargar datos al inicio
+            await loadMushroomData();
+
+            // Menú móvil
+            document.querySelector(".menu-toggle").addEventListener("click", function() {
+                document.querySelector(".nav-menu").classList.toggle("show");
+            });
+
+            // Botón volver arriba
             const backToTopButton = document.getElementById("backToTop");
-
             window.addEventListener("scroll", function () {
                 if (window.scrollY > 200) {
                     backToTopButton.style.display = "flex";
@@ -264,28 +573,211 @@
                 window.scrollTo({ top: 0, behavior: "smooth" });
             });
 
-            // Actualizar colores del hongo
-            const colorInputs = ['superficie', 'parte-inferior', 'pie'];
-            const parts = ['cap', 'gills', 'stem'];
-            
-            colorInputs.forEach((id, index) => {
-                const input = document.getElementById(id);
+            // Configurar selectores de color
+            const colorInputs = {
+                superficie: document.getElementById('superficie'),
+                'parte-inferior': document.getElementById('parte-inferior'),
+                pie: document.getElementById('pie')
+            };
+
+            const parts = {
+                superficie: document.querySelector('.cap'),
+                'parte-inferior': document.querySelector('.gills'),
+                pie: document.querySelector('.stem')
+            };
+
+            // Inicializar colores
+            Object.entries(colorInputs).forEach(([id, input]) => {
+                parts[id].style.backgroundColor = input.value;
+            });
+
+            // Manejar cambios de color
+            Object.entries(colorInputs).forEach(([id, input]) => {
                 input.addEventListener('input', function() {
-                    const part = document.querySelector('.' + parts[index]);
-                    part.style.backgroundColor = this.value;
+                    parts[id].style.backgroundColor = this.value;
                 });
             });
 
-            // Manejar búsqueda por colores
-            document.querySelector('.color-search-button').addEventListener('click', function() {
-                const colors = {
-                    sombrero: document.getElementById('superficie').value,
-                    laminas: document.getElementById('parte-inferior').value,
-                    pie: document.getElementById('pie').value
-                };
-                // La funcionalidad de búsqueda se implementará más adelante
+            // Manejar búsqueda
+            let isSearching = false;
+            document.querySelector('.color-search-button').addEventListener('click', async function() {
+                if (isSearching) return;
+                isSearching = true;
+
+                try {
+                    const colors = {
+                        cap: hexToLab(colorInputs.superficie.value),
+                        gills: hexToLab(colorInputs['parte-inferior'].value),
+                        stem: hexToLab(colorInputs.pie.value)
+                    };
+
+                    const results = searchMushroomsByColor(colors);
+                    await updateResults(results);
+                } finally {
+                    isSearching = false;
+                }
             });
         });
+
+        // Función para actualizar resultados
+        async function updateResults(results) {
+            const resultsGrid = document.querySelector('.results-grid');
+            
+            // Crear contenido
+            const content = results.length === 0 
+                ? '<p>No se encontraron hongos con esos colores.</p>'
+                : results.map(result => {
+                    // Procesar el nombre de la imagen
+                    const imagePath = result.mushroom.image
+                        .replace('images/mushrooms/', '') // Remover path si existe
+                        .replace('-', '_') // Reemplazar guiones por guiones bajos si existen
+                        .replace('.jpg', '.jpeg'); // Corregir extensión
+                    
+                    return `
+                    <div class="fungi-card">
+                        <div class="image-container">
+                            <img src="images/mushrooms/${imagePath}"
+                                 alt="${result.mushroom.name}"
+                                 class="fungi-image"
+                                 loading="lazy"
+                                 onerror="this.onerror=null; this.src='images/placeholder.png'; console.log('Error cargando imagen:', this.src);">
+                            <div class="image-overlay">
+                                <span>Imagen no disponible</span>
+                            </div>
+                        </div>
+                        <div class="fungi-info">
+                            <h3>${result.mushroom.name}</h3>
+                            <p><em>${result.mushroom.scientificName}</em></p>
+                            <div class="similarity-bar">
+                                <div class="similarity-fill" style="width: ${result.similarity}%"></div>
+                                <span class="similarity-text">${result.similarity}% coincidencia</span>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+
+            resultsGrid.innerHTML = content;
+            
+            // Debug: Mostrar las imágenes que se están intentando cargar
+            console.log('Imágenes a cargar:', results.map(r => r.mushroom.image));
+        }
+
+        // Actualizar estilos
+        const styles = `
+            .results-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 2rem;
+                padding: 1rem;
+            }
+
+            .fungi-card {
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                overflow: hidden;
+                background: white;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+
+            .fungi-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            }
+
+            .image-container {
+                position: relative;
+                width: 100%;
+                height: 200px;
+                background: #f5f5f5;
+                overflow: hidden;
+            }
+
+            .fungi-image {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.3s ease;
+                will-change: transform;
+            }
+
+            .fungi-card:hover .fungi-image {
+                transform: scale(1.05);
+            }
+
+            .image-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                color: #000000;
+                font-size: 0.9rem;
+                backdrop-filter: blur(2px);
+            }
+
+            .image-overlay span {
+                background-color: rgba(255, 255, 255, 0.2);
+                padding: 8px 16px;
+                border-radius: 20px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            .fungi-image[src$="placeholder.png"] + .image-overlay {
+                display: flex;
+            }
+
+            .fungi-info {
+                padding: 1rem;
+            }
+
+            .fungi-info h3 {
+                margin: 0 0 0.5rem 0;
+                color: #4a6741;
+            }
+
+            .fungi-info p {
+                margin: 0 0 1rem 0;
+                color: #666;
+            }
+
+            .similarity-bar {
+                background: #f0f0f0;
+                border-radius: 4px;
+                height: 20px;
+                position: relative;
+                margin-top: 10px;
+                overflow: hidden;
+            }
+
+            .similarity-fill {
+                background: #4a6741;
+                height: 100%;
+                width: 0;
+                transition: width 0.3s ease;
+            }
+
+            .similarity-text {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                color: white;
+                text-shadow: 0 0 2px rgba(0,0,0,0.5);
+                font-size: 0.9rem;
+                font-weight: bold;
+                z-index: 1;
+            }
+        `;
+
+        // Agregar estilos al documento
+        const styleSheet = document.createElement("style");
+        styleSheet.textContent = styles;
+        document.head.appendChild(styleSheet);
     </script>
 </body>
 </html> 
